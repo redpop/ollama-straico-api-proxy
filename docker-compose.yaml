@@ -1,0 +1,34 @@
+services:
+  straico:
+    image: ghcr.io/jayrinaldime/ollama-straico-apiproxy:latest
+    environment:
+      - STRAICO_API_KEY=${STRAICO_API_KEY}
+    restart: unless-stopped
+    ports:
+      # the usual Ollama port is 11434  use this url http://127.0.0.1:11434
+      # - 11434:3214
+      # if you already have ollama app installed in your system please use another port
+      # instead of 11434:3214 use 3214:3214 like below
+      - 3214:3214
+      # However when you use it ensure that you use the correct port http://127.0.0.1:3214
+    networks:
+      - straico_net
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://straico:3214
+      - WEBUI_AUTH=false
+      - GLOBAL_LOG_LEVEL=DEBUG
+    restart: always
+    volumes:
+      - open-webui:/app/backend/data
+    networks:
+      - straico_net
+
+volumes:
+  open-webui:
+
+networks:
+  straico_net:
